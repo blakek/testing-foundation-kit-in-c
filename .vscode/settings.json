@@ -1,0 +1,11 @@
+{
+  "files.associations": {
+    "*.env": "shellscript",
+    "Brewfile": "ruby",
+    ".npmrc": "ini",
+    "objc.h": "c",
+    "stdbool.h": "c",
+    "availability.h": "c",
+    "types.h": "c"
+  }
+}
