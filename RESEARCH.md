@@ -13,7 +13,8 @@ docs](https://developer.apple.com/documentation/objectivec/objective-c_runtime?l
 
 Also seems useful:
 
-https://developer.mozilla.org/en-US/docs/Mozilla/js-ctypes/Examples/Using_Objective-C_from_js-ctypes
+- https://developer.mozilla.org/en-US/docs/Mozilla/js-ctypes/Examples/Using_Objective-C_from_js-ctypes
+- https://github.com/dschep/ntfy/blob/master/ntfy/backends/darwin.py
 
 ### [`NSUserNotificationCenter`](https://developer.apple.com/documentation/foundation/nsusernotificationcenter?language=objc)
 
