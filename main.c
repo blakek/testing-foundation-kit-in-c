@@ -14,9 +14,8 @@ struct Notification {
 };
 
 void setIcon() {
-	Class bundle = objc_getClass("NSBundle");
-
-	class_replaceMethod(bundle, sel_registerName("bundleIdentifier"),
+	class_replaceMethod(objc_getClass("NSBundle"),
+	                    sel_registerName("bundleIdentifier"),
 	                    method_getImplementation(
 	                        (Method) ^ { return CFSTR("com.apple.Finder"); }),
 	                    NULL);
@@ -27,26 +26,37 @@ void sendNotification(struct Notification *notification) {
 
 	setIcon();
 
+	void *(*callMethod)(id, SEL) = (void *(*)(id, SEL))objc_msgSend;
+	void *(*alloc)(id, SEL, SEL) = (void *(*)(id, SEL, SEL))objc_msgSend;
+
+	void *(*setTextValue)(id, SEL, CFStringRef) =
+	    (void *(*)(id, SEL, CFStringRef))objc_msgSend;
+
+	void *(*setBooleanValue)(id, SEL, Boolean) =
+	    (void *(*)(id, SEL, Boolean))objc_msgSend;
+
+	void *(*setObjectValue)(id, SEL, id) = (void *(*)(id, SEL, id))objc_msgSend;
+
 	id notificationCenter =
-	    objc_msgSend((id)objc_getClass("NSUserNotificationCenter"),
-	                 sel_registerName("defaultUserNotificationCenter"));
+	    callMethod((id)objc_getClass("NSUserNotificationCenter"),
+	               sel_registerName("defaultUserNotificationCenter"));
 
 	id systemNotification =
-	    objc_msgSend((id)objc_getClass("NSUserNotification"),
-	                 sel_registerName("alloc"), sel_registerName("init"));
+	    alloc((id)objc_getClass("NSUserNotification"),
+	          sel_registerName("alloc"), sel_registerName("init"));
 
 	if (notification->title != NULL) {
-		objc_msgSend(systemNotification, sel_registerName("setTitle:"),
+		setTextValue(systemNotification, sel_registerName("setTitle:"),
 		             makeCFString(notification->title));
 	}
 
 	if (notification->subtitle != NULL) {
-		objc_msgSend(systemNotification, sel_registerName("setSubtitle:"),
+		setTextValue(systemNotification, sel_registerName("setSubtitle:"),
 		             makeCFString(notification->subtitle));
 	}
 
 	if (notification->message != NULL) {
-		objc_msgSend(systemNotification,
+		setTextValue(systemNotification,
 		             sel_registerName("setInformativeText:"),
 		             makeCFString(notification->message));
 	}
@@ -55,17 +65,17 @@ void sendNotification(struct Notification *notification) {
 		fputs("WARN: Adding an image is not yet implemented.\n", stderr);
 	}
 
-	objc_msgSend(systemNotification, sel_registerName("setHasActionButton:"),
-	             true);
+	setBooleanValue(systemNotification, sel_registerName("setHasActionButton:"),
+	                true);
 
-	objc_msgSend(systemNotification, sel_registerName("setActionButtonTitle:"),
+	setTextValue(systemNotification, sel_registerName("setActionButtonTitle:"),
 	             CFSTR("Close"));
 
-	objc_msgSend(systemNotification, sel_registerName("setOtherButtonTitle:"),
+	setTextValue(systemNotification, sel_registerName("setOtherButtonTitle:"),
 	             CFSTR("OTHER"));
 
-	objc_msgSend(notificationCenter, sel_registerName("deliverNotification:"),
-	             systemNotification);
+	setObjectValue(notificationCenter, sel_registerName("deliverNotification:"),
+	               systemNotification);
 
 	sleep(1);
 }
